@@ -1,0 +1,45 @@
+[package]
+name = "sequence-heap"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.88"
+license = "MIT OR Apache-2.0"
+description = "A cache-efficient priority queue (sequence heap) with the std::collections::BinaryHeap API and no dependencies"
+repository = "https://github.com/j-baker/sequence-heap"
+keywords = ["heap", "priority-queue", "binary-heap", "min-heap", "performance"]
+categories = ["data-structures", "algorithms", "no-std"]
+readme = "README.md"
+# Only what the crate needs: not the Nix build, CI, the Kani script or the
+# benchmark harness.
+include = ["/src", "/examples", "/tests", "/Cargo.toml", "/README.md", "/LICENSE-*"]
+
+[dependencies]
+# Optional: makes the compiler prove the hot paths cannot panic (link-time
+# check, zero runtime cost).  Used by `examples/no_panic_check.rs`; not for
+# downstream builds, where a panicking `Ord` would fail to link.
+no-panic = { version = "0.1", optional = true }
+
+[features]
+no-panic = ["dep:no-panic"]
+
+[dev-dependencies]
+
+[lib]
+name = "sequence_heap"
+path = "src/lib.rs"
+
+[[bench]]
+name = "bench"
+harness = false
+
+[profile.release]
+lto = "fat"
+codegen-units = 1
+debug = 1
+panic = "unwind"
+
+[profile.bench]
+inherits = "release"
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(kani)"] }

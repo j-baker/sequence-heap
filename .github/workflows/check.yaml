@@ -1,0 +1,23 @@
+name: Run checks
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  checks:
+    name: Nix checks
+    runs-on: trustless-amd64-large
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: DeterminateSystems/determinate-nix-action@v3
+      - uses: actions/checkout@v4
+      - uses: j-baker/build-action@v0.4.0
+        with:
+          ssh-host: dev.trustless.build
+          org-slug: local-test
+          versioned-packages: sequence-heap
+          github-token: ${{ secrets.ACTION_PAT }}
+          command: nix flake check
+      - run: nix fmt -- --ci
