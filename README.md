@@ -315,8 +315,9 @@ Plain `cargo build`/`cargo test`/`cargo bench`; MSRV is 1.88. With Nix:
   **Trusted Publishing**: the job exchanges GitHub's OIDC identity token for a
   short-lived crates.io token (`rust-lang/crates-io-auth-action`, revoked
   when the job ends), so no long-lived token exists anywhere. The workflow
-  re-checks that the tag matches the crate version and runs `nix flake
-  check` before publishing, from a GitHub environment named `release`.
+  re-checks that the tag matches the crate version and builds `.#all` (every
+  check) on the Trustless builder, like the check workflow, before
+  publishing from a GitHub environment named `release`.
   One-time setup: crates.io requires the very first release to be published
   manually (`--publish`, with `CARGO_REGISTRY_TOKEN` or `cargo login`); after
   that, in the crate's crates.io settings add a trusted publisher
