@@ -88,7 +88,6 @@
             packages = [
               pkgs.rustc
               pkgs.cargo
-	      pkgs.cargo-release
               pkgs.rustfmt
               pkgs.clippy
               pkgs.rust-analyzer
