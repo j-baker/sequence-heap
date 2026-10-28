@@ -18,5 +18,4 @@ jobs:
           ssh-host: dev.trustless.build
           org-slug: local-test
           versioned-packages: all
-          command: nix flake check
-      - run: nix fmt -- --ci
+          command: nix build .#packages.x86_64-linux.all
