@@ -43,7 +43,6 @@ jobs:
           ssh-host: dev.trustless.build
           org-slug: local-test
           versioned-packages: all
-          github-token: ${{ secrets.ACTION_PAT }}
           command: nix build .#all
       - uses: rust-lang/crates-io-auth-action@v1
         id: auth
