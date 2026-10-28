@@ -323,9 +323,8 @@ Plain `cargo build`/`cargo test`/`cargo bench`; MSRV is 1.88. With Nix:
   (repository `j-baker/sequence-heap`, workflow `publish.yaml`, environment
   `release`) and create the `release` environment on GitHub. `--dry-run`
   stops before committing and restores the two files. The package contains
-  only `src`, `examples`, `tests`, the manifest, README and licences
-  (`include` in `Cargo.toml`), not the Nix files, CI or the benchmark
-  harness.
+  only `src`, `examples`, `tests`, `benches`, the manifest, README and
+  licences (`include` in `Cargo.toml`), not the Nix files or CI.
 
 ## License
 

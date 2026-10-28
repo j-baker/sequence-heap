@@ -14,7 +14,8 @@
 # restores the two files.
 #
 # This cannot be a Nix build (the sandbox has no network and no git
-# identity), so it is an app with pinned tools.
+# identity), so it is an app with pinned tools.  `nix` itself is taken from
+# the host, so its settings are understood.
 { pkgs }:
 pkgs.writeShellApplication {
   name = "release";
@@ -23,7 +24,6 @@ pkgs.writeShellApplication {
     pkgs.rustc
     pkgs.cargo-edit
     pkgs.git
-    pkgs.nix
   ];
   text = ''
     usage() {
@@ -78,7 +78,11 @@ pkgs.writeShellApplication {
 
     echo "==> committing and tagging v$version"
     git add Cargo.toml Cargo.lock
-    git commit -m "Release v$version"
+    if git diff --cached --quiet; then
+      echo "    (version was already $version; nothing to commit)"
+    else
+      git commit -m "Release v$version"
+    fi
     git tag -a "v$version" -m "sequence-heap v$version"
 
     if [[ $publish -eq 1 ]]; then

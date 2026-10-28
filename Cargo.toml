@@ -11,7 +11,7 @@ categories = ["data-structures", "algorithms", "no-std"]
 readme = "README.md"
 # Only what the crate needs: not the Nix build, CI, the Kani script or the
 # benchmark harness.
-include = ["/src", "/examples", "/tests", "/Cargo.toml", "/README.md", "/LICENSE-*"]
+include = ["/src", "/examples", "/tests", "/benches", "/Cargo.toml", "/README.md", "/LICENSE-*"]
 
 [dependencies]
 # Optional: makes the compiler prove the hot paths cannot panic (link-time
