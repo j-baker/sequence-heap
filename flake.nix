@@ -73,8 +73,7 @@
       system:
       let
         pkgs = pkgsFor system;
-      in
-      {
+
         packages = {
           sequence-heap = (crate pkgs).package;
           default = (crate pkgs).package;
@@ -84,22 +83,12 @@
           release = import ./nix/release.nix { inherit pkgs; };
         };
 
-        apps.release = {
-          type = "app";
-          program = lib.getExe self.packages.${system}.release;
-        };
-
-        # `nix flake check` is the CI gate: the crate builds and its tests pass.
-        checks = {
-          build = (crate pkgs).package;
-          tests = (crate pkgs).tests;
-        };
-
         devShells = {
           default = pkgs.mkShell {
             packages = [
               pkgs.rustc
               pkgs.cargo
+	      pkgs.cargo-release
               pkgs.rustfmt
               pkgs.clippy
               pkgs.rust-analyzer
@@ -122,6 +111,57 @@
             ];
             RUST_SRC_PATH = "${kaniToolchain pkgs}/lib/rustlib/src/rust/library";
           };
+        };
+
+        # The Nix sources are formatted (the crate's own formatting is
+        # checked by `cargo fmt --check`, outside Nix).
+        nixfmt-check =
+          pkgs.runCommand "nixfmt-check"
+            {
+              nativeBuildInputs = [ pkgs.nixfmt ];
+              src = lib.fileset.toSource {
+                root = ./.;
+                fileset = lib.fileset.fileFilter (f: f.hasExt "nix") ./.;
+              };
+            }
+            ''
+              find "$src" -name '*.nix' -exec nixfmt --check {} +
+              touch "$out"
+            '';
+        checks = {
+          build = (crate pkgs).package;
+          tests = (crate pkgs).tests;
+          release = packages.release;
+          kani = packages.kani;
+          devshell-default = devShells.default;
+          devshell-kani = devShells.kani;
+          nixfmt = nixfmt-check;
+        };
+      in
+      {
+        packages = packages // {
+          # Same as `checks.all`: everything, built.
+          all = pkgs.linkFarm "sequence-heap-checks" (
+            lib.mapAttrsToList (name: path: { inherit name path; }) checks
+          );
+        };
+        inherit devShells;
+
+        apps.release = {
+          type = "app";
+          program = lib.getExe packages.release;
+        };
+
+        # `nix flake check` builds every one of these; it is the CI gate.
+        # The two shells and the release app are cheap; `kani` is the model
+        # checker built from source (~20 minutes uncached) and is what the
+        # `kani` shell needs anyway.
+        checks = checks // {
+          # `all` depends on every other check, so one build (`nix build
+          # .#all`, or the CI runner's versioned output) verifies everything.
+          all = pkgs.linkFarm "sequence-heap-checks" (
+            lib.mapAttrsToList (name: path: { inherit name path; }) checks
+          );
         };
 
         # `nix fmt` / `nix fmt -- --ci`.

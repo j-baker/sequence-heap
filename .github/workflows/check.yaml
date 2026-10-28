@@ -17,6 +17,6 @@ jobs:
         with:
           ssh-host: dev.trustless.build
           org-slug: local-test
-          versioned-packages: sequence-heap
+          versioned-packages: all
           command: nix flake check
       - run: nix fmt -- --ci

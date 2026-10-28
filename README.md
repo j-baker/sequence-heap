@@ -291,7 +291,13 @@ Plain `cargo build`/`cargo test`/`cargo bench`; MSRV is 1.88. With Nix:
 * `nix build`: the crate, via crate2nix (`nix/crate.nix`); `Cargo.nix` is
   generated from `Cargo.lock` at evaluation time (import-from-derivation),
   so there is nothing to regenerate or commit.
-* `nix flake check`: the CI gate, the crate builds and its tests pass.
+* `nix flake check`: the CI gate. It builds the crate and runs its tests,
+  builds both devshells, the release app and the Kani package, and checks
+  the Nix sources are formatted. `checks.all` (also `packages.all`, so
+  `nix build .#all`) depends on every other check; it is what the CI
+  runner builds and versions. Kani is the slow one (about 20 minutes
+  uncached) and is what the `kani` shell needs anyway; drop the `kani` and
+  `devshell-kani` checks in `flake.nix` if CI time matters more.
 * `nix develop`: rustc, cargo, clippy, rust-analyzer, and on Linux valgrind
   and perf. All per-system outputs (packages, apps, checks, shells,
   formatter) exist for x86_64/aarch64 Linux and macOS (`flake-utils`
