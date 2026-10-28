@@ -97,7 +97,7 @@
             # Profiling: cachegrind/callgrind and hardware counters.
             ++ lib.optionals pkgs.stdenv.isLinux [
               pkgs.valgrind
-              pkgs.linuxPackages.perf
+              pkgs.perf
             ];
             RUST_SRC_PATH = "${pkgs.rustPlatform.rustLibSrc}";
           };
@@ -167,10 +167,5 @@
         # `nix fmt` / `nix fmt -- --ci`.
         formatter = pkgs.nixfmt-tree;
       }
-    )
-    // {
-      overlays.default = final: _prev: {
-        sequence-heap = (crate final).package;
-      };
-    };
+    );
 }
