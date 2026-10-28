@@ -18,6 +18,5 @@ jobs:
           ssh-host: dev.trustless.build
           org-slug: local-test
           versioned-packages: sequence-heap
-          github-token: ${{ secrets.ACTION_PAT }}
           command: nix flake check
       - run: nix fmt -- --ci
