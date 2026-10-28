@@ -48,6 +48,6 @@ jobs:
       - uses: rust-lang/crates-io-auth-action@v1
         id: auth
       - name: Publish
-        run: nix shell --inputs-from . nixpkgs#cargo nixpkgs#rustc --command cargo publish --locked
+        run: nix develop --command cargo publish --locked
         env:
           CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
