@@ -30,8 +30,10 @@
 //!   costs both.
 //! * `into_vec` and `From<Vec<T>>` are O(n) and O(n log n) respectively
 //!   (the latter sorts the input into a run).
-//! * The capacity family (`reserve`, `shrink_to_fit`, ...) acts on the
-//!   insertion buffer; runs are allocated exactly as they are produced.
+//! * `new` is `const` and allocates nothing; the insertion buffer grows with
+//!   the first pushes to its size (`M`, 8192 by default) and then stays. The
+//!   capacity family (`reserve`, `shrink_to_fit`, ...) acts on that buffer;
+//!   runs are allocated exactly as they are produced.
 //! * Extras: [`SeqHeap::push_pop`], [`SeqHeap::replace`],
 //!   [`SeqHeap::into_iter_sorted`], [`SeqHeap::drain_sorted`].
 //!

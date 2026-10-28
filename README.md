@@ -35,7 +35,9 @@ and a million-element heap has twenty levels. The sequence heap (Sanders,
 streaming:
 
 * **Insertion buffer.** Pushes go into a small d-ary heap (8192 elements by
-  default) that stays in L1/L2: 8-ary for 8-byte keys, with the hole
+  default, allocated lazily: an empty heap owns no memory and the buffer
+  grows with the first pushes to its size, where it then stays) that stays
+  in L1/L2: 8-ary for 8-byte keys, with the hole
   technique (one move per level) and branch-free child selection on
   register copies. This is the crate's one `unsafe` module; with `std`'s
   `BinaryHeap` in its place the heap was 20-50% slower on everything that

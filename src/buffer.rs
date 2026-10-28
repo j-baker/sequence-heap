@@ -128,6 +128,14 @@ impl<T: Ord, O: HeapOrder> Buffer<T, O> {
     /// Tournament on bitwise copies (see the module docs).
     const BY_VALUE: bool = !mem::needs_drop::<T>() && size_of::<T>() <= 16;
 
+    /// An empty buffer; allocates nothing until the first push.
+    pub(crate) const fn new() -> Self {
+        Buffer {
+            v: Vec::new(),
+            _order: PhantomData,
+        }
+    }
+
     pub(crate) fn with_capacity(cap: usize) -> Self {
         Buffer {
             v: Vec::with_capacity(cap),

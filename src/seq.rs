@@ -220,21 +220,26 @@ pub type MinHeap<T> = SeqHeap<T, crate::Min>;
 pub type MaxHeap<T> = SeqHeap<T, crate::Max>;
 
 impl<T: Ord, O: HeapOrder, const M: usize, const K: usize> SeqHeap<T, O, M, K> {
-    /// Creates an empty heap.
-    pub fn new() -> Self {
+    /// Creates an empty heap.  Allocates nothing: the insertion buffer
+    /// grows geometrically with the first pushes (to at most `M` elements,
+    /// where it then stays) and runs are allocated as they are made.
+    pub const fn new() -> Self {
         assert!(M >= 1 && K >= 1 && K.is_power_of_two() && K < u32::MAX as usize);
         SeqHeap {
-            buf: Buffer::with_capacity(M),
+            buf: Buffer::new(),
             levels: Vec::new(),
             len: 0,
             dirty: false,
         }
     }
 
-    /// Creates an empty heap; the capacity hint only sizes the insertion
-    /// buffer, runs are allocated as they are made.
-    pub fn with_capacity(_capacity: usize) -> Self {
-        Self::new()
+    /// Creates an empty heap with the insertion buffer sized for
+    /// `capacity` elements (at most `M`); runs are allocated as they are
+    /// made.
+    pub fn with_capacity(capacity: usize) -> Self {
+        let mut h = Self::new();
+        h.buf = Buffer::with_capacity(capacity.min(M));
+        h
     }
 
     /// Number of elements.
@@ -249,15 +254,15 @@ impl<T: Ord, O: HeapOrder, const M: usize, const K: usize> SeqHeap<T, O, M, K> {
         self.len == 0
     }
 
-    /// Number of elements that can be held without allocating: the
-    /// insertion buffer's capacity plus the spare capacity of every run.
+    /// Total capacity, as `BinaryHeap::capacity`: the insertion buffer's
+    /// capacity plus every run's capacity (always at least `len()`).
     pub fn capacity(&self) -> usize {
         self.buf.capacity()
             + self
                 .levels
                 .iter()
                 .flat_map(|lv| lv.runs.iter())
-                .map(|r| r.capacity() - r.len())
+                .map(Vec::capacity)
                 .sum::<usize>()
     }
 
